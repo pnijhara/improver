@@ -137,13 +137,19 @@ class Test_renormalize_weights(IrisTest):
             "topographic_zone", self.weights_cube
         )
 
+    def test_basic(self):
+        """Test weights_cube is still a cube after the function call"""
+        nbhooded_cube = self.weights_cube.copy()
+        self.plugin.renormalize_weights(nbhooded_cube)
+        self.assertIsInstance(self.weights_cube, iris.cube.Cube)
+
     def test_no_NaNs_in_nbhooded_cube(self):
         """No NaNs in the neighbourhood cube, so no renormalization is
            needed"""
         nbhooded_cube = self.weights_cube.copy()
         expected_weights = self.weights_cube.data.copy()
-        weights = self.plugin.renormalize_weights(nbhooded_cube)
-        self.assertArrayAlmostEqual(expected_weights, weights)
+        self.plugin.renormalize_weights(nbhooded_cube)
+        self.assertArrayAlmostEqual(expected_weights, self.weights_cube.data)
 
     def test_all_NaNs_in_nbhooded_cube(self):
         """Test an error is raised when all NaNs in the nbhood cube so cannot
@@ -163,9 +169,9 @@ class Test_renormalize_weights(IrisTest):
             self.weights_cube.data, mask=self.mask
         )
         expected_weights = self.weights_cube.data.copy()
-        weights = self.plugin.renormalize_weights(nbhooded_cube)
-        self.assertArrayAlmostEqual(expected_weights.data, weights.data)
-        self.assertArrayAlmostEqual(expected_weights.mask, weights.mask)
+        self.plugin.renormalize_weights(nbhooded_cube)
+        self.assertArrayAlmostEqual(expected_weights.data, self.weights_cube.data.data)
+        self.assertArrayAlmostEqual(expected_weights.mask, self.weights_cube.data.mask)
 
     def test_some_NaNs_in_nbhooded_cube(self):
         """Some NaNs in the neighbourhood cube, so renormalization is needed"""
@@ -199,8 +205,8 @@ class Test_renormalize_weights(IrisTest):
             ]
         )
         nbhooded_cube = self.weights_cube.copy(nbhood_data)
-        weights = self.plugin.renormalize_weights(nbhooded_cube)
-        self.assertArrayAlmostEqual(expected_weights, weights)
+        self.plugin.renormalize_weights(nbhooded_cube)
+        self.assertArrayAlmostEqual(expected_weights, self.weights_cube.data)
 
     def test_some_NaNs_in_nbhooded_cube_and_masked_weights(self):
         """Some NaNs in the neighbourhood cube, so renormalization is needed.
@@ -214,9 +220,9 @@ class Test_renormalize_weights(IrisTest):
             self.weights_cube.data, mask=self.mask
         )
         expected_weights = self.weights_cube.data.copy()
-        weights = self.plugin.renormalize_weights(nbhooded_cube)
-        self.assertArrayAlmostEqual(expected_weights.data, weights.data)
-        self.assertArrayAlmostEqual(expected_weights.mask, weights.mask)
+        self.plugin.renormalize_weights(nbhooded_cube)
+        self.assertArrayAlmostEqual(expected_weights.data, self.weights_cube.data.data)
+        self.assertArrayAlmostEqual(expected_weights.mask, self.weights_cube.data.mask)
 
     def test_coordinate_not_found(self):
         """Coordinate not found on the cube."""
@@ -296,8 +302,8 @@ class Test_renormalize_weights(IrisTest):
         plugin = CollapseMaskedNeighbourhoodCoordinate(
             "projection_x_coordinate", weights_cube
         )
-        weights = plugin.renormalize_weights(nbhooded_cube)
-        self.assertArrayAlmostEqual(expected_weights, weights)
+        plugin.renormalize_weights(nbhooded_cube)
+        self.assertArrayAlmostEqual(expected_weights, weights_cube.data)
 
 
 class Test_process(IrisTest):
